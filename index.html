@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Bridge Playground · The Purposeful Performer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --dark: #000F22;
+    --dark-2: #0A1A2C;
+    --dark-3: #1E2A3C;
+    --gold: #FFD81D;
+    --gold-soft: rgba(255, 216, 29, 0.12);
+    --floral: #F4F0EA;
+    --white: #FFFFFF;
+    --muted: #AAB3BD;
+    --green: #22C55E;
+    --red: #EF4444;
+    --orange: #F59E0B;
+    --purple: #A855F7;
+    --blue: #3B82F6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    background: var(--dark); color: var(--floral);
+    line-height: 1.6; font-size: 15px;
+  }
+  .hero {
+    padding: 44px 32px 36px; text-align: center;
+    background: linear-gradient(135deg, var(--dark) 0%, #0D1F35 55%, var(--dark) 100%);
+    border-bottom: 1px solid var(--dark-3);
+  }
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 44px); font-weight: 800;
+    color: var(--white); letter-spacing: -0.02em; line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  .hero h1 .accent { color: var(--gold); }
+  .hero .eyebrow {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); font-weight: 700; margin-bottom: 14px;
+  }
+  .hero .subhead {
+    font-size: clamp(14px, 1.6vw, 17px); color: var(--muted);
+    max-width: 820px; margin: 0 auto;
+  }
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(0,15,34,0.96); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--dark-3);
+    padding: 10px 16px; display: flex; gap: 6px; overflow-x: auto;
+    scrollbar-width: thin; scrollbar-color: var(--dark-3) transparent;
+  }
+  .nav::-webkit-scrollbar { height: 6px; }
+  .nav::-webkit-scrollbar-thumb { background: var(--dark-3); border-radius: 3px; }
+  .nav button {
+    flex-shrink: 0; padding: 9px 14px; font-family: inherit; font-weight: 700;
+    font-size: 12.5px; color: var(--muted); background: transparent;
+    border: 1px solid transparent; border-radius: 8px; cursor: pointer;
+    white-space: nowrap; transition: all 0.15s ease;
+  }
+  .nav button:hover { color: var(--white); background: var(--dark-2); }
+  .nav button.active {
+    color: var(--dark); background: var(--gold); border-color: var(--gold);
+  }
+  main { max-width: 1280px; margin: 0 auto; padding: 28px 20px 40px; }
+  section.panel { display: none; animation: fadeIn 0.25s ease; }
+  section.panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .panel-header { margin-bottom: 22px; }
+  .panel-header h2 {
+    font-size: clamp(22px, 3vw, 32px); font-weight: 800; color: var(--white);
+    letter-spacing: -0.015em; line-height: 1.2; margin-bottom: 8px;
+  }
+  .panel-header h2 .accent { color: var(--gold); }
+  .panel-header p { color: var(--muted); font-size: 14.5px; max-width: 820px; }
+  .grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; }
+  .grid.wide-inputs { grid-template-columns: 420px 1fr; }
+  .grid.single { grid-template-columns: 1fr; }
+  .card {
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 12px; padding: 22px;
+  }
+  .card h3 {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); font-weight: 700; margin-bottom: 14px;
+  }
+  .card h4 {
+    font-size: 10.5px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; margin: 16px 0 10px;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; color: var(--floral); margin-bottom: 6px; font-weight: 600;
+  }
+  .field label .val {
+    color: var(--gold); font-weight: 800; font-variant-numeric: tabular-nums;
+  }
+  input[type="range"] {
+    width: 100%; -webkit-appearance: none; height: 6px;
+    background: var(--dark-3); border-radius: 3px; outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px;
+    background: var(--gold); border-radius: 50%; cursor: pointer;
+    box-shadow: 0 0 0 3px rgba(255,216,29,0.2);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; background: var(--gold);
+    border-radius: 50%; cursor: pointer; border: none;
+  }
+  input[type="number"], input[type="text"], select {
+    width: 100%; padding: 8px 10px; background: var(--dark);
+    border: 1px solid var(--dark-3); border-radius: 6px;
+    color: var(--white); font-family: inherit; font-size: 13px;
+  }
+  .toggle-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .toggle-row button {
+    flex: 1; min-width: 80px; padding: 8px 10px; background: var(--dark-3);
+    color: var(--floral); border: 1px solid var(--dark-3); border-radius: 6px;
+    font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toggle-row button:hover { border-color: var(--gold); color: var(--white); }
+  .toggle-row button.on {
+    background: var(--gold); color: var(--dark); border-color: var(--gold);
+  }
+  .chart-wrap {
+    position: relative; min-height: 320px; background: var(--dark-2);
+    border: 1px solid var(--dark-3); border-radius: 12px; padding: 18px;
+  }
+  .metrics {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px; margin-top: 18px;
+  }
+  .metric {
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 10px; padding: 14px;
+  }
+  .metric .label {
+    font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; margin-bottom: 6px;
+  }
+  .metric .value {
+    font-size: 22px; font-weight: 800; color: var(--white);
+    font-variant-numeric: tabular-nums;
+  }
+  .metric.hero-metric .value { color: var(--gold); font-size: 28px; }
+  .metric.positive .value { color: var(--green); }
+  .metric.negative .value { color: var(--red); }
+  .metric.warning .value { color: var(--orange); }
+  .callout {
+    margin-top: 18px; padding: 16px 18px; border-radius: 10px;
+    background: var(--gold-soft); border-left: 3px solid var(--gold);
+    color: var(--floral); font-size: 14px; line-height: 1.6;
+  }
+  .callout.green { background: rgba(34,197,94,0.08); border-left-color: var(--green); }
+  .callout.red { background: rgba(239,68,68,0.08); border-left-color: var(--red); }
+  .callout.orange { background: rgba(245,158,11,0.08); border-left-color: var(--orange); }
+  .callout strong { color: var(--white); }
+  .signal-pill {
+    display: inline-block; padding: 3px 9px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .signal-pill.green { background: rgba(34,197,94,0.15); color: var(--green); }
+  .signal-pill.orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .signal-pill.blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .signal-pill.gold { background: rgba(255,216,29,0.18); color: var(--gold); }
+  .signal-pill.red { background: rgba(239,68,68,0.15); color: var(--red); }
+  /* Twin */
+  .twin-wrap {
+    display: grid; grid-template-columns: 320px 1fr; gap: 24px;
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 14px; padding: 24px;
+  }
+  .twin-intro { padding: 10px 0; }
+  .twin-avatar {
+    width: 120px; height: 120px; border-radius: 50%; overflow: hidden;
+    border: 2px solid var(--gold); margin-bottom: 16px;
+  }
+  .twin-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .twin-intro h3 {
+    font-size: 17px; color: var(--white); font-weight: 800;
+    margin-bottom: 10px; letter-spacing: -0.01em;
+  }
+  .twin-intro p { font-size: 13.5px; color: var(--muted); margin-bottom: 12px; }
+  .twin-intro .scope-note {
+    background: var(--gold-soft); border-left: 3px solid var(--gold);
+    padding: 10px 12px; border-radius: 6px; margin-top: 12px;
+    font-size: 12.5px; color: var(--floral);
+  }
+  .twin-intro .scope-note strong { color: var(--gold); }
+  .chat-card {
+    background: var(--dark); border: 1px solid var(--dark-3);
+    border-radius: 10px; display: flex; flex-direction: column;
+    min-height: 500px;
+  }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 18px; max-height: 420px; }
+  .msg {
+    padding: 12px 14px; border-radius: 10px; margin-bottom: 10px;
+    font-size: 14px; line-height: 1.6;
+  }
+  .msg.twin { background: var(--dark-2); border-left: 3px solid var(--gold); color: var(--floral); }
+  .msg.twin strong { color: var(--white); }
+  .msg.user {
+    background: var(--dark-3); border-right: 3px solid var(--floral);
+    color: var(--white); margin-left: 40px; text-align: right;
+  }
+  .msg .msg-meta {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); font-weight: 800; margin-bottom: 6px;
+  }
+  .suggested {
+    padding: 14px 18px; border-top: 1px solid var(--dark-3);
+    display: flex; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.2);
+  }
+  .suggested button {
+    padding: 7px 12px; background: var(--dark-3); border: 1px solid transparent;
+    color: var(--floral); border-radius: 6px; font-family: inherit;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .suggested button:hover { background: var(--gold-soft); border-color: var(--gold); color: var(--white); }
+  .claude-cta {
+    padding: 14px 18px; display: flex; align-items: center;
+    justify-content: space-between; background: linear-gradient(90deg, rgba(255,216,29,0.05) 0%, transparent 100%);
+    border-top: 1px solid var(--dark-3); gap: 14px; flex-wrap: wrap;
+  }
+  .claude-cta .txt { font-size: 12.5px; color: var(--floral); flex: 1; }
+  .claude-cta .txt strong { color: var(--white); }
+  .claude-cta a {
+    padding: 8px 14px; background: var(--gold); color: var(--dark);
+    font-weight: 800; font-size: 12px; border-radius: 6px;
+    text-decoration: none; text-transform: uppercase; letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .chat-input { display: flex; padding: 14px 18px; border-top: 1px solid var(--dark-3); gap: 10px; }
+  .chat-input input {
+    flex: 1; padding: 10px 14px; background: var(--dark-2);
+    border: 1px solid var(--dark-3); border-radius: 8px;
+    color: var(--white); font-family: inherit; font-size: 13.5px; outline: none;
+  }
+  .chat-input input:focus { border-color: var(--gold); }
+  .chat-input button {
+    padding: 10px 18px; background: var(--gold); color: var(--dark);
+    font-family: inherit; font-weight: 800; font-size: 12px;
+    border: none; border-radius: 8px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  /* Offer cards */
+  .offer-card {
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 10px; padding: 16px 18px; margin-bottom: 10px;
+  }
+  .offer-card.recommended { border-color: var(--gold); }
+  .offer-card .oc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .offer-card .oc-name { font-weight: 800; color: var(--white); font-size: 15px; letter-spacing: -0.01em; }
+  .offer-card .oc-score {
+    background: var(--gold-soft); color: var(--gold); padding: 4px 10px;
+    border-radius: 12px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em;
+  }
+  .offer-card .oc-detail { font-size: 13px; color: var(--floral); line-height: 1.6; margin-bottom: 8px; }
+  .offer-card .oc-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); }
+  .offer-card .oc-meta strong { color: var(--gold); font-variant-numeric: tabular-nums; }
+  /* Channel cards */
+  .channel-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .channel-card {
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 10px; padding: 16px;
+  }
+  .channel-card.recommended { border-color: var(--gold); background: linear-gradient(180deg, rgba(255,216,29,0.04), var(--dark-2)); }
+  .channel-card .ch-name { font-weight: 800; color: var(--white); font-size: 15px; margin-bottom: 6px; }
+  .channel-card .ch-tag {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); font-weight: 800; margin-bottom: 10px;
+  }
+  .channel-card .ch-row {
+    display: grid; grid-template-columns: 90px 1fr; gap: 8px;
+    padding: 5px 0; font-size: 12px; border-top: 1px solid var(--dark-3);
+  }
+  .channel-card .ch-row .k {
+    font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700;
+  }
+  .channel-card .ch-row .v { color: var(--floral); }
+  .channel-card .ch-row .v strong { color: var(--white); }
+  /* Validation steps */
+  .val-step {
+    display: grid; grid-template-columns: 40px 1fr; gap: 14px;
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .val-step .vs-num {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--gold);
+    color: var(--dark); font-weight: 800; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .val-step .vs-title { font-weight: 800; color: var(--white); font-size: 14.5px; margin-bottom: 6px; }
+  .val-step .vs-detail { font-size: 12.5px; color: var(--floral); line-height: 1.6; }
+  .val-step .vs-detail strong { color: var(--gold); }
+  /* Year cards (3-Year Buildup) */
+  .year-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    margin-bottom: 18px;
+  }
+  .year-card {
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 12px; padding: 18px; cursor: pointer;
+    transition: all 0.2s; position: relative;
+  }
+  .year-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .year-card.active { border-color: var(--gold); background: linear-gradient(180deg, rgba(255,216,29,0.06), var(--dark-2)); }
+  .year-card .yr-label {
+    font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold); font-weight: 800; margin-bottom: 8px;
+  }
+  .year-card .yr-title { font-size: 17px; color: var(--white); font-weight: 800; margin-bottom: 8px; }
+  .year-card .yr-rev { font-size: 24px; color: var(--gold); font-weight: 800; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+  .year-card .yr-sub { font-size: 11.5px; color: var(--muted); }
+  /* Pricing models */
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .pricing-card {
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 12px; padding: 18px;
+  }
+  .pricing-card.recommended { border-color: var(--gold); background: linear-gradient(180deg, rgba(255,216,29,0.05), var(--dark-2)); }
+  .pricing-card .pm-name { font-size: 15px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
+  .pricing-card .pm-ceiling { font-size: 22px; font-weight: 800; color: var(--gold); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+  .pricing-card .pm-ceiling-label { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
+  .pricing-card .pm-block {
+    border-top: 1px solid var(--dark-3); padding-top: 10px; margin-top: 10px;
+    font-size: 12px; color: var(--floral); line-height: 1.55;
+  }
+  .pricing-card .pm-block strong {
+    font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); font-weight: 800; display: block; margin-bottom: 4px;
+  }
+  /* Bridge connector flow */
+  .flow-row {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+    align-items: center; margin-bottom: 14px;
+  }
+  .flow-box {
+    background: var(--dark-2); border: 1px solid var(--dark-3);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .flow-box.source { border-color: var(--gold); }
+  .flow-box .fb-label {
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold); font-weight: 800; margin-bottom: 6px;
+  }
+  .flow-box .fb-name { font-size: 13.5px; color: var(--white); font-weight: 700; margin-bottom: 4px; }
+  .flow-box .fb-amt { font-size: 18px; color: var(--gold); font-weight: 800; font-variant-numeric: tabular-nums; }
+  .flow-box .fb-detail { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  .flow-arrow {
+    color: var(--gold); font-size: 22px; text-align: center;
+  }
+  footer {
+    margin-top: 40px; padding: 24px; text-align: center;
+    background: var(--dark-2); border-top: 1px solid var(--dark-3);
+    font-size: 11px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  footer strong { color: var(--gold); }
+  .disclaimer {
+    margin-top: 24px; padding: 16px 20px; background: var(--dark-2);
+    border: 1px solid var(--dark-3); border-radius: 10px;
+    font-size: 12px; color: var(--muted); line-height: 1.7;
+  }
+  .disclaimer strong { color: var(--floral); }
+  @media (max-width: 900px) {
+    .grid, .grid.wide-inputs { grid-template-columns: 1fr; gap: 16px; }
+    .twin-wrap { grid-template-columns: 1fr; }
+    .twin-avatar { width: 80px; height: 80px; }
+    .year-grid { grid-template-columns: 1fr; }
+    .flow-row { grid-template-columns: 1fr; gap: 8px; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+  @media (max-width: 640px) {
+    .hero { padding: 28px 18px 22px; }
+    main { padding: 20px 14px 32px; }
+    .card { padding: 16px; }
+    .chart-wrap { padding: 12px; min-height: 280px; }
+  }
+  @media (max-width: 400px) {
+    .metric .value { font-size: 18px; }
+    .metric.hero-metric .value { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="eyebrow">Learning Path 5 · Lesson 11 Companion</div>
+  <h1>The <span class="accent">Bridge</span> Playground</h1>
+  <p class="subhead">Eight tools to take you from "I want to build owned revenue" to "I shipped my first $1K and I know what comes next." Built for strategic sellers using the skills you already have.</p>
+</div>
+
+<nav class="nav" id="nav">
+  <button class="active" data-target="s-mapper">🎯 Skill → Offer Mapper</button>
+  <button data-target="s-revenue">💰 First-Year Revenue Modeler</button>
+  <button data-target="s-pricing">🚀 Pricing Architect</button>
+  <button data-target="s-distro">📡 Distribution Channel Selector</button>
+  <button data-target="s-validation">🧪 Validation Playbook</button>
+  <button data-target="s-buildup">📈 Three-Year Buildup Map</button>
+  <button data-target="s-bridge">🔗 Bridge → Architecture</button>
+  <button data-target="s-twin">🎙 Ask the AI Twin</button>
+</nav>
+
+<main>
+
+<!-- ==================== 1. SKILL → OFFER MAPPER ==================== -->
+<section id="s-mapper" class="panel active">
+  <div class="panel-header">
+    <h2>Skill → Offer Mapper: <span class="accent">The offer hiding in the skills you already have.</span></h2>
+    <p>Pick your top three strategic-seller skills. The mapper ranks five offer types against your skill stack and shows which one is closest to a first paid customer.</p>
+  </div>
+  <div class="grid wide-inputs">
+    <div class="card">
+      <h3>Your Top 3 Skills</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Toggle the three skills that describe what you do best. Most strategic sellers have 2-3 active skills and 4-5 dormant ones.</p>
+      <div class="toggle-row" id="skill-toggles" style="flex-direction:column;align-items:stretch;">
+        <button class="on" data-skill="enterprise-negotiation">Enterprise negotiation &amp; closing</button>
+        <button class="on" data-skill="narrative-memos">Narrative memos &amp; written deal strategy</button>
+        <button data-skill="discovery">Discovery &amp; problem framing</button>
+        <button class="on" data-skill="async-deal-flow">Async deal flow &amp; multi-thread coordination</button>
+        <button data-skill="exec-presence">Executive presence &amp; C-level conversation</button>
+        <button data-skill="forecasting">Forecasting &amp; pipeline management</button>
+        <button data-skill="positioning">Positioning &amp; competitive analysis</button>
+        <button data-skill="enablement">Sales enablement &amp; training</button>
+        <button data-skill="creative-outreach">Creative outreach</button>
+        <button data-skill="account-planning">Account planning &amp; strategy</button>
+      </div>
+      <div class="callout" style="margin-top:14px;font-size:12.5px;">
+        <strong>Why three.</strong> One skill is a tactic. Three combined is a category. The intersection of your top three is what makes your offer hard to copy and easy to price above market.
+      </div>
+    </div>
+    <div>
+      <div id="offer-output"></div>
+      <div class="callout" id="mapper-callout" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 2. FIRST-YEAR REVENUE MODELER ==================== -->
+<section id="s-revenue" class="panel">
+  <div class="panel-header">
+    <h2>First-Year Revenue Modeler: <span class="accent">What your inputs actually produce.</span></h2>
+    <p>Plug in the hours you can commit, the price you'll charge, and a realistic conversion rate. The modeler projects monthly revenue, annual run-rate, and how many months until the first $1K, $10K, and $50K of side income.</p>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Your Inputs</h3>
+      <div class="field">
+        <label>Hours per week available <span class="val" id="rev-hours-v">8</span></label>
+        <input type="range" id="rev-hours" min="2" max="25" step="1" value="8" />
+      </div>
+      <div class="field">
+        <label>Audience size (LinkedIn / newsletter / network) <span class="val" id="rev-audience-v">2,000</span></label>
+        <input type="range" id="rev-audience" min="0" max="50000" step="100" value="2000" />
+      </div>
+      <div class="field">
+        <label>Audience growth rate (monthly) <span class="val" id="rev-growth-v">6%</span></label>
+        <input type="range" id="rev-growth" min="0" max="40" step="1" value="6" />
+      </div>
+      <div class="field">
+        <label>Price per offer <span class="val" id="rev-price-v">$1,500</span></label>
+        <input type="range" id="rev-price" min="100" max="25000" step="100" value="1500" />
+      </div>
+      <div class="field">
+        <label>Audience-to-customer conversion <span class="val" id="rev-conv-v">0.4%</span></label>
+        <input type="range" id="rev-conv" min="0" max="50" step="1" value="4" />
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">A 0.4% conversion (4 in 1,000) is typical for warm LinkedIn / newsletter audiences. Cold ranges 0.05-0.2%. Engaged community audiences hit 1-3%.</p>
+    </div>
+    <div>
+      <div class="metrics">
+        <div class="metric hero-metric">
+          <div class="label">First-year revenue projection</div>
+          <div class="value" id="rev-year">—</div>
+        </div>
+        <div class="metric">
+          <div class="label">Monthly revenue at month 12</div>
+          <div class="value" id="rev-mo12">—</div>
+        </div>
+        <div class="metric">
+          <div class="label">Customers at month 12</div>
+          <div class="value" id="rev-cust12">—</div>
+        </div>
+      </div>
+      <div class="metrics" style="margin-top:12px;">
+        <div class="metric">
+          <div class="label">Months to first $1K</div>
+          <div class="value" id="rev-1k">—</div>
+        </div>
+        <div class="metric">
+          <div class="label">Months to first $10K</div>
+          <div class="value" id="rev-10k">—</div>
+        </div>
+        <div class="metric">
+          <div class="label">Months to $50K cumulative</div>
+          <div class="value" id="rev-50k">—</div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="margin-top:18px;"><canvas id="rev-chart"></canvas></div>
+      <div class="callout" id="rev-callout"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 3. PRICING ARCHITECT ==================== -->
+<section id="s-pricing" class="panel">
+  <div class="panel-header">
+    <h2>Pricing Architect: <span class="accent">Four models, scored against your stage.</span></h2>
+    <p>Hourly, package, retainer, and one-time product. Each has a different ceiling, a different fit signal, and a different trap. The architect ranks all four against your inputs and recommends the one most likely to ship a first customer inside 90 days.</p>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Your Inputs</h3>
+      <div class="field">
+        <label>Stage <span class="val" id="pr-stage-v">First offer</span></label>
+        <div class="toggle-row" id="pr-stage-toggles">
+          <button class="on" data-stage="first">First offer</button>
+          <button data-stage="2to10k">$2K-$10K MRR</button>
+          <button data-stage="10kplus">$10K+ MRR</button>
+        </div>
+      </div>
+      <div class="field" style="margin-top:14px;">
+        <label>Hours you can commit per week <span class="val" id="pr-hours-v">8</span></label>
+        <input type="range" id="pr-hours" min="2" max="25" step="1" value="8" />
+      </div>
+      <div class="field">
+        <label>Number of buyers you can talk to per month <span class="val" id="pr-buyers-v">10</span></label>
+        <input type="range" id="pr-buyers" min="2" max="50" step="1" value="10" />
+      </div>
+      <div class="callout" style="margin-top:14px;font-size:12.5px;">
+        <strong>Pricing isn't math, but math sets the floor.</strong> Hourly caps your week. Packages cap your buyer. Retainers cap your client list. One-time products have no buyer ceiling, but the audience ceiling does the work instead.
+      </div>
+    </div>
+    <div>
+      <div class="pricing-grid" id="pr-output"></div>
+      <div class="callout" id="pr-callout" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 4. DISTRIBUTION CHANNEL SELECTOR ==================== -->
+<section id="s-distro" class="panel">
+  <div class="panel-header">
+    <h2>Distribution Channel Selector: <span class="accent">Where strategic sellers actually find their first buyers.</span></h2>
+    <p>Six channels scored against your network size, writing comfort, and time-to-first-customer target. The selector recommends one starting channel and flags one to add after your first 90 days.</p>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Your Inputs</h3>
+      <div class="field">
+        <label>Current LinkedIn network <span class="val" id="dc-network-v">2,500</span></label>
+        <input type="range" id="dc-network" min="0" max="50000" step="100" value="2500" />
+      </div>
+      <div class="field">
+        <label>Writing comfort (1 = avoid, 10 = enjoy) <span class="val" id="dc-write-v">6</span></label>
+        <input type="range" id="dc-write" min="1" max="10" step="1" value="6" />
+      </div>
+      <div class="field">
+        <label>Target time to first customer (months) <span class="val" id="dc-time-v">3</span></label>
+        <input type="range" id="dc-time" min="1" max="12" step="1" value="3" />
+      </div>
+      <div class="field">
+        <label>Marketing budget per month <span class="val" id="dc-budget-v">$0</span></label>
+        <input type="range" id="dc-budget" min="0" max="5000" step="100" value="0" />
+      </div>
+    </div>
+    <div>
+      <div class="channel-grid" id="dc-output"></div>
+      <div class="callout" id="dc-callout" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 5. VALIDATION PLAYBOOK ==================== -->
+<section id="s-validation" class="panel">
+  <div class="panel-header">
+    <h2>Validation Playbook: <span class="accent">Five interviews, three betas, two pilots.</span></h2>
+    <p>The single biggest mistake strategic sellers make on the bridge is building before validating. The playbook below is the same discovery-to-close pattern you already run on enterprise deals, applied to your own offer.</p>
+  </div>
+  <div class="grid single">
+    <div id="val-steps"></div>
+    <div class="metrics">
+      <div class="metric hero-metric">
+        <div class="label">Total time</div>
+        <div class="value">4-6 weeks</div>
+      </div>
+      <div class="metric">
+        <div class="label">Cost to run</div>
+        <div class="value">$0</div>
+      </div>
+      <div class="metric positive">
+        <div class="label">Go / no-go signal</div>
+        <div class="value">2 paid pilots</div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:14px;">
+      <strong>Why validation before building.</strong> Every hour spent building a course or community before you have two paid pilots is an hour against the wrong offer. The interviews and betas cost nothing. The course you build wrong costs you the next six months.
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 6. THREE-YEAR BUILDUP MAP ==================== -->
+<section id="s-buildup" class="panel">
+  <div class="panel-header">
+    <h2>Three-Year Buildup Map: <span class="accent">From first $1K to first $200K.</span></h2>
+    <p>Click any year to see what changes: revenue, hours per week, audience size, infrastructure. The pattern is consistent across the strategic sellers I work with — the speeds vary, the sequence doesn't.</p>
+  </div>
+  <div class="grid single">
+    <div class="year-grid">
+      <div class="year-card active" data-year="1">
+        <div class="yr-label">Year 1</div>
+        <div class="yr-title">Foundation</div>
+        <div class="yr-rev">$10K-$40K</div>
+        <div class="yr-sub">Audience + first offer + validation</div>
+      </div>
+      <div class="year-card" data-year="2">
+        <div class="yr-label">Year 2</div>
+        <div class="yr-title">Validation</div>
+        <div class="yr-rev">$50K-$120K</div>
+        <div class="yr-sub">Pricing power + repeat buyers</div>
+      </div>
+      <div class="year-card" data-year="3">
+        <div class="yr-label">Year 3</div>
+        <div class="yr-title">Scale</div>
+        <div class="yr-rev">$150K-$300K</div>
+        <div class="yr-sub">Product layer + bridge to architecture</div>
+      </div>
+    </div>
+    <div class="card" id="buildup-detail"></div>
+  </div>
+</section>
+
+<!-- ==================== 7. BRIDGE → ARCHITECTURE CONNECTOR ==================== -->
+<section id="s-bridge" class="panel">
+  <div class="panel-header">
+    <h2>Bridge → Architecture Connector: <span class="accent">How your side income fills the Wealth Architecture from Lesson 10.</span></h2>
+    <p>The bridge isn't the destination. It's the inflow that fills the seven-account stack from L10 and accelerates the FINE timeline. Plug in your current side income and see the % of your Walk-Away Number being filled per month.</p>
+  </div>
+  <div class="grid wide-inputs">
+    <div class="card">
+      <h3>Your Inputs</h3>
+      <div class="field">
+        <label>Current monthly side income <span class="val" id="br-income-v">$3,500</span></label>
+        <input type="range" id="br-income" min="0" max="50000" step="250" value="3500" />
+      </div>
+      <div class="field">
+        <label>Annual cost of living <span class="val" id="br-col-v">$180,000</span></label>
+        <input type="range" id="br-col" min="75000" max="600000" step="5000" value="180000" />
+      </div>
+      <div class="field">
+        <label>Monthly growth rate of side income <span class="val" id="br-growth-v">5%</span></label>
+        <input type="range" id="br-growth" min="0" max="40" step="1" value="5" />
+      </div>
+      <h4>Replacement target</h4>
+      <div class="toggle-row">
+        <button data-target="60">60%</button>
+        <button class="on" data-target="70">70%</button>
+        <button data-target="80">80%</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">70% of annual cost of living is the FINE default from Lesson 10.</p>
+    </div>
+    <div>
+      <div class="metrics">
+        <div class="metric hero-metric">
+          <div class="label">% of FINE filled per month right now</div>
+          <div class="value" id="br-pct">—</div>
+        </div>
+        <div class="metric">
+          <div class="label">Monthly FINE target</div>
+          <div class="value" id="br-target">—</div>
+        </div>
+        <div class="metric">
+          <div class="label">Months to FINE at current trajectory</div>
+          <div class="value" id="br-months">—</div>
+        </div>
+      </div>
+      <h4 style="margin-top:24px;color:var(--gold);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:800;">Where the bridge income flows</h4>
+      <div id="br-flow"></div>
+      <div class="callout" id="br-callout" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 8. AI TWIN ==================== -->
+<section id="s-twin" class="panel">
+  <div class="panel-header">
+    <h2>Ask the <span class="accent">AI Twin</span></h2>
+    <p>The most common Bridge questions, answered in Brandon's voice. Scoped to the lesson — for personalized advice on your specific offer or audience, work with a coach.</p>
+  </div>
+  <div class="twin-wrap">
+    <div class="twin-intro">
+      <div class="twin-avatar"><img id="twin-avatar-img" alt="Brandon" /></div>
+      <h3>Brandon's AI Twin</h3>
+      <p>Trained on the Bridge lesson, the skill-to-offer mapping, the validation playbook, and the path from first $1K to first $100K.</p>
+      <div class="scope-note"><strong>Scope:</strong> picking your first offer, pricing it, validating it, distribution channels, the three-year buildup, and how the bridge income feeds your Wealth Architecture from Lesson 10.</div>
+    </div>
+    <div class="chat-card">
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg twin"><div class="msg-meta">Brandon (AI Twin)</div>I built this whole lesson on a single idea: <strong>the skills that already make you good at your job are the same skills that build your first owned revenue stream</strong>. The strategic seller who runs enterprise deals already knows how to discover, qualify, close, and deliver. The only thing missing is choosing what to build, who it's for, and how to price it. The Playground tabs walk that decision tree. Pick one of the starter questions or ask your own.</div>
+      </div>
+      <div class="suggested" id="suggested"></div>
+      <div class="claude-cta">
+        <div class="txt">For deeper conversation, switch to the full Claude experience. <strong>This is a sandbox.</strong></div>
+        <a href="https://claude.ai" target="_blank" rel="noopener">Open Claude</a>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chat-input" placeholder="Type a question about the bridge…" />
+        <button id="chat-send">Send</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="disclaimer">
+  <strong>Educational only.</strong> Not financial, tax, or legal advice. The projections here use rounded assumptions for illustration. Real revenue depends on your specific skills, audience, pricing power, market timing, and execution. Consult a qualified professional before making any financial decision.
+</div>
+
+<footer>
+  <strong>The Purposeful Performer</strong> · Learning Path 5 · Lesson 11 Companion · Built for strategic tech sellers building owned revenue.
+</footer>
+
+</main>
+
+<script>
+const fmt$ = (n) => '$' + Math.round(n).toLocaleString();
+const fmtK = (n) => {
+  if (Math.abs(n) >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1000) return '$' + Math.round(n / 1000) + 'K';
+  return '$' + Math.round(n).toLocaleString();
+};
+const fmtMo = (n) => {
+  if (n === null || n === undefined) return '—';
+  if (n === Infinity || isNaN(n)) return '—';
+  if (n < 0) return 'Achieved';
+  if (n > 240) return '20+ years';
+  if (n < 24) return Math.round(n) + ' months';
+  return (n / 12).toFixed(1) + ' years';
+};
+
+document.querySelectorAll('.nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('section.panel').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+    notifyResize();
+  });
+});
+
+function notifyResize() {
+  setTimeout(() => {
+    const h = document.body.scrollHeight;
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'pp-playground-resize', height: h }, '*');
+    }
+  }, 80);
+}
+window.addEventListener('load', notifyResize);
+window.addEventListener('resize', notifyResize);
+
+// =====================================================
+// TAB 1: SKILL → OFFER MAPPER
+// =====================================================
+const SKILL_LIBRARY = {
+  'enterprise-negotiation': { name: 'Enterprise negotiation & closing', weight: { coaching: 3, consulting: 3, advisory: 3, product: 1, community: 1 } },
+  'narrative-memos': { name: 'Narrative memos & written deal strategy', weight: { coaching: 2, consulting: 3, advisory: 2, product: 3, community: 2 } },
+  'discovery': { name: 'Discovery & problem framing', weight: { coaching: 3, consulting: 3, advisory: 2, product: 2, community: 2 } },
+  'async-deal-flow': { name: 'Async deal flow & multi-thread coordination', weight: { coaching: 1, consulting: 3, advisory: 3, product: 1, community: 1 } },
+  'exec-presence': { name: 'Executive presence & C-level conversation', weight: { coaching: 2, consulting: 2, advisory: 3, product: 1, community: 2 } },
+  'forecasting': { name: 'Forecasting & pipeline management', weight: { coaching: 2, consulting: 3, advisory: 2, product: 2, community: 1 } },
+  'positioning': { name: 'Positioning & competitive analysis', weight: { coaching: 2, consulting: 3, advisory: 2, product: 3, community: 2 } },
+  'enablement': { name: 'Sales enablement & training', weight: { coaching: 3, consulting: 2, advisory: 1, product: 3, community: 3 } },
+  'creative-outreach': { name: 'Creative outreach', weight: { coaching: 2, consulting: 2, advisory: 1, product: 3, community: 3 } },
+  'account-planning': { name: 'Account planning & strategy', weight: { coaching: 3, consulting: 3, advisory: 3, product: 2, community: 2 } }
+};
+
+const OFFER_LIBRARY = {
+  coaching: { name: '1:1 Coaching Package', detail: 'A 6 to 12-week 1:1 engagement that translates your strategic-seller playbook into deliverables for your client. Highest revenue per buyer at the start. Ceiling: your hours.', speed: 'First customer in 30-60 days', price: '$1,500-$5,000 per engagement', floor: '$10K in 90 days realistic' },
+  consulting: { name: 'Done-With-You Consulting', detail: 'You run discovery, build the playbook, and hand it back. Repeats well with the same client. Ceiling: your hours, but per-engagement value is higher than coaching.', speed: 'First customer in 30-90 days', price: '$5,000-$25,000 per engagement', floor: '$25K in 90 days realistic' },
+  advisory: { name: 'Fractional Advisory / Board Seat', detail: 'Monthly retainer for a fixed number of hours plus equity in some cases. The least time-intensive per dollar but requires the most relationship build-up first.', speed: 'First customer in 60-120 days', price: '$2,500-$10,000/month retainer', floor: '$5K in 90 days realistic' },
+  product: { name: 'Digital Product (Course / Playbook / Template)', detail: 'Build once, sell many. No ceiling on buyers. Lowest revenue per buyer but compounds with audience growth. Best as the second offer.', speed: 'First customer in 90-180 days', price: '$197-$1,997 per buyer', floor: '$5K in 90 days if audience exists' },
+  community: { name: 'Paid Community / Membership', detail: 'Recurring revenue from a group of practitioners learning from you and each other. Highest lifetime value but slowest to start.', speed: 'First 10 members in 60-120 days', price: '$49-$200/month per member', floor: '$3K MRR in 6 months realistic' }
+};
+
+let activeSkills = ['enterprise-negotiation', 'narrative-memos', 'async-deal-flow'];
+
+function updateMapper() {
+  const scores = { coaching: 0, consulting: 0, advisory: 0, product: 0, community: 0 };
+  activeSkills.forEach(s => {
+    if (!SKILL_LIBRARY[s]) return;
+    Object.keys(SKILL_LIBRARY[s].weight).forEach(k => { scores[k] += SKILL_LIBRARY[s].weight[k]; });
+  });
+  const ranked = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+  const max = scores[ranked[0]];
+  const html = ranked.map((k, i) => {
+    const o = OFFER_LIBRARY[k];
+    const pct = max > 0 ? Math.round(scores[k] / max * 100) : 0;
+    return `<div class="offer-card ${i === 0 ? 'recommended' : ''}"><div class="oc-head"><div class="oc-name">${i + 1}. ${o.name}</div><div class="oc-score">${pct}% fit</div></div><div class="oc-detail">${o.detail}</div><div class="oc-meta"><div><strong>Speed:</strong> ${o.speed}</div><div><strong>Price:</strong> ${o.price}</div><div><strong>90-day floor:</strong> ${o.floor}</div></div></div>`;
+  }).join('');
+  document.getElementById('offer-output').innerHTML = html;
+
+  if (activeSkills.length === 0) {
+    document.getElementById('mapper-callout').innerHTML = '<strong>Pick at least one skill.</strong> The mapper needs your inputs to rank the offer types.';
+  } else if (activeSkills.length > 3) {
+    document.getElementById('mapper-callout').innerHTML = '<strong>You picked more than three.</strong> The exercise is about choosing — narrowing to three forces the trade-off and produces a sharper offer.';
+  } else {
+    const top = OFFER_LIBRARY[ranked[0]];
+    document.getElementById('mapper-callout').innerHTML = `<strong>Your starting offer.</strong> Based on your top three skills, <strong>${top.name}</strong> is the fastest path to a first paid customer. Start there. Once the offer has cleared two paid pilots, layer the second-ranked offer on top.`;
+  }
+  notifyResize();
+}
+
+document.querySelectorAll('#skill-toggles button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('on');
+    const skill = btn.dataset.skill;
+    if (btn.classList.contains('on')) {
+      if (!activeSkills.includes(skill)) activeSkills.push(skill);
+    } else {
+      activeSkills = activeSkills.filter(s => s !== skill);
+    }
+    updateMapper();
+  });
+});
+
+// =====================================================
+// TAB 2: FIRST-YEAR REVENUE MODELER
+// =====================================================
+let revChart = null;
+
+function updateRevenue() {
+  const hours = +document.getElementById('rev-hours').value;
+  const audience = +document.getElementById('rev-audience').value;
+  const growth = +document.getElementById('rev-growth').value / 100;
+  const price = +document.getElementById('rev-price').value;
+  const conv = +document.getElementById('rev-conv').value / 1000;
+  document.getElementById('rev-hours-v').textContent = hours;
+  document.getElementById('rev-audience-v').textContent = audience.toLocaleString();
+  document.getElementById('rev-growth-v').textContent = (growth * 100).toFixed(0) + '%';
+  document.getElementById('rev-price-v').textContent = fmt$(price);
+  document.getElementById('rev-conv-v').textContent = (conv * 100).toFixed(2) + '%';
+
+  const capacity = Math.max(2, Math.floor(hours * 4 / 5));
+  let totalRev = 0;
+  let currentAudience = audience;
+  let cumRev = 0;
+  const labels = [];
+  const series = [];
+  let firstK = null, firstTenK = null, fiftyK = null;
+  let monthlyAtMo12 = 0;
+  let customersAtMo12 = 0;
+
+  for (let m = 1; m <= 12; m++) {
+    currentAudience = currentAudience * (1 + growth);
+    const potential = Math.floor(currentAudience * conv);
+    const customers = Math.min(potential, capacity);
+    const monthRev = customers * price;
+    cumRev += monthRev;
+    labels.push('Mo ' + m);
+    series.push(Math.round(cumRev));
+    if (firstK === null && cumRev >= 1000) firstK = m;
+    if (firstTenK === null && cumRev >= 10000) firstTenK = m;
+    if (fiftyK === null && cumRev >= 50000) fiftyK = m;
+    if (m === 12) { monthlyAtMo12 = monthRev; customersAtMo12 = customers; }
+    totalRev += monthRev;
+  }
+
+  document.getElementById('rev-year').textContent = fmtK(totalRev);
+  document.getElementById('rev-mo12').textContent = fmtK(monthlyAtMo12) + '/mo';
+  document.getElementById('rev-cust12').textContent = customersAtMo12;
+  document.getElementById('rev-1k').textContent = firstK ? 'Month ' + firstK : 'Beyond Year 1';
+  document.getElementById('rev-10k').textContent = firstTenK ? 'Month ' + firstTenK : 'Beyond Year 1';
+  document.getElementById('rev-50k').textContent = fiftyK ? 'Month ' + fiftyK : 'Beyond Year 1';
+
+  try {
+    if (typeof Chart === 'undefined') throw new Error('Chart.js not loaded');
+    if (revChart) revChart.destroy();
+    revChart = new Chart(document.getElementById('rev-chart'), {
+      type: 'line',
+      data: { labels: labels, datasets: [{ label: 'Cumulative revenue', data: series, borderColor: '#FFD81D', backgroundColor: 'rgba(255,216,29,0.18)', fill: true, tension: 0.25, pointRadius: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#F4F0EA', font: { family: 'Open Sans' } } }, tooltip: { callbacks: { label: (c) => 'Cumulative: ' + fmtK(c.parsed.y) } } }, scales: { x: { ticks: { color: '#AAB3BD' }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color: '#AAB3BD', callback: (v) => fmtK(v) }, grid: { color: 'rgba(255,255,255,0.04)' } } } }
+    });
+  } catch (e) {
+    const cw = document.getElementById('rev-chart').parentElement;
+    cw.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:280px;color:var(--muted);font-size:13px;text-align:center;padding:20px;line-height:1.6;">Projection chart unavailable in this view. Read the revenue metrics above.</div>';
+  }
+
+  let cls = 'callout', html = '';
+  if (totalRev >= 100000) { cls = 'callout green'; html = '<strong>Strong first year.</strong> At these inputs you cross ' + fmtK(totalRev) + ' in Year 1 revenue, which is the top quartile for strategic sellers in the first 12 months. The audience growth assumption is doing real work; protect it by writing consistently.'; }
+  else if (totalRev >= 40000) { cls = 'callout'; html = '<strong>Healthy first year.</strong> ' + fmtK(totalRev) + ' of Year-1 revenue clears the LLC threshold from Lesson 8 and produces real Solo 401(k) profit-share room. Layer a second offer in Year 2 to compound.'; }
+  else if (totalRev >= 10000) { cls = 'callout orange'; html = '<strong>Foundation year.</strong> ' + fmtK(totalRev) + ' covers the LLC and tax-prep costs and validates the offer. The biggest lever now is conversion rate — getting from 0.4% to 0.8% doubles Year 2 revenue at the same audience size.'; }
+  else { cls = 'callout red'; html = '<strong>Below the validation threshold.</strong> ' + fmtK(totalRev) + ' suggests either price is too low, audience is too small, or conversion is too low. Spend the first 90 days on the Validation Playbook tab before scaling distribution.'; }
+  document.getElementById('rev-callout').className = cls;
+  document.getElementById('rev-callout').innerHTML = html;
+  notifyResize();
+}
+document.querySelectorAll('#s-revenue input[type=range]').forEach(el => el.addEventListener('input', updateRevenue));
+
+// =====================================================
+// TAB 3: PRICING ARCHITECT
+// =====================================================
+let prStage = 'first';
+
+function updatePricing() {
+  const hours = +document.getElementById('pr-hours').value;
+  const buyers = +document.getElementById('pr-buyers').value;
+  document.getElementById('pr-hours-v').textContent = hours;
+  document.getElementById('pr-buyers-v').textContent = buyers;
+  document.getElementById('pr-stage-v').textContent = prStage === 'first' ? 'First offer' : (prStage === '2to10k' ? '$2K-$10K MRR' : '$10K+ MRR');
+
+  const models = [
+    { name: 'Hourly', ceiling: hours * 4 * 200, ceilingLabel: 'Monthly ceiling at $200/hr', fit: prStage === 'first' ? 'Decent for first paid pilots — the buyer knows what they\'re paying for and you learn what one hour of your work actually delivers.' : 'Caps your growth at your week. Move to packages.', trap: 'Anchors you to time. Every raise feels personal. No leverage.', score: prStage === 'first' ? 70 : 30 },
+    { name: 'Fixed-price Package', ceiling: Math.min(buyers, hours * 4 / 5) * 2500, ceilingLabel: 'Monthly ceiling at $2,500 / package', fit: prStage === 'first' ? 'The right starting model. Defined scope, defined outcome, defined price.' : 'Foundation of every six-figure coaching business. Continues to work at scale.', trap: 'Scope creep destroys margin. Define the package tightly and stick to it.', score: prStage === 'first' ? 95 : (prStage === '2to10k' ? 90 : 70) },
+    { name: 'Monthly Retainer', ceiling: Math.min(8, buyers) * 5000, ceilingLabel: 'Monthly ceiling at $5K / retainer', fit: prStage === 'first' ? 'Hard to land as a first offer — buyers want to see results before recurring commitment.' : 'The compounding model. Three retainers at $5K each is $15K MRR with predictability.', trap: 'Cancellation risk concentrates in fewer relationships. One churn hurts.', score: prStage === 'first' ? 40 : (prStage === '2to10k' ? 85 : 80) },
+    { name: 'One-time Digital Product', ceiling: 50000, ceilingLabel: 'Monthly ceiling (no buyer cap)', fit: prStage === 'first' ? 'Premature without a validated framework. Build the course once you\'ve sold the same engagement five times.' : 'The right second offer. The work you\'ve done with paying clients becomes the curriculum.', trap: 'Course completion rates are brutal. Bundle the product with light-touch coaching to keep churn low.', score: prStage === 'first' ? 25 : (prStage === '2to10k' ? 75 : 85) }
+  ];
+  models.sort((a, b) => b.score - a.score);
+  const html = models.map((m, i) => `<div class="pricing-card ${i === 0 ? 'recommended' : ''}"><div class="pm-name">${m.name}${i === 0 ? ' · Recommended' : ''}</div><div class="pm-ceiling">${fmtK(m.ceiling)}</div><div class="pm-ceiling-label">${m.ceilingLabel}</div><div class="pm-block"><strong>Fit at this stage</strong>${m.fit}</div><div class="pm-block"><strong>Common trap</strong>${m.trap}</div></div>`).join('');
+  document.getElementById('pr-output').innerHTML = html;
+
+  const top = models[0];
+  document.getElementById('pr-callout').innerHTML = `<strong>Your starting model: ${top.name}.</strong> At ${hours} hours per week and ${buyers} buyer conversations per month, this is the highest-leverage pricing model for your current stage. Ceiling at this model: ${fmtK(top.ceiling)}/mo. Layer the second-ranked model after you've hit it.`;
+  notifyResize();
+}
+
+document.querySelectorAll('#pr-stage-toggles button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#pr-stage-toggles button').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    prStage = btn.dataset.stage;
+    updatePricing();
+  });
+});
+document.querySelectorAll('#s-pricing input[type=range]').forEach(el => el.addEventListener('input', updatePricing));
+
+// =====================================================
+// TAB 4: DISTRIBUTION CHANNEL SELECTOR
+// =====================================================
+const CHANNELS = [
+  { key: 'linkedin', name: 'LinkedIn', tag: 'Highest-fit for strategic sellers', timeInvestment: '4-6 hrs/week', cost: '$0', timeToFirst: '60-120 days', netFit: 'You\'re already on it. Audience already there. Buyers already there.' },
+  { key: 'newsletter', name: 'Email Newsletter', tag: 'Compounds with audience', timeInvestment: '3-5 hrs/week', cost: '$0-$50/mo', timeToFirst: '90-180 days', netFit: 'Owned audience. No algorithm risk. Slow start, deep compounding.' },
+  { key: 'referrals', name: 'Direct Referrals', tag: 'Fastest first dollar', timeInvestment: '2-3 hrs/week', cost: '$0', timeToFirst: '14-60 days', netFit: 'Tap your existing network. Highest conversion, lowest scale.' },
+  { key: 'podcast', name: 'Podcast Tour (guest)', tag: 'Reach without owning the show', timeInvestment: '4 hrs/week', cost: '$0-$200', timeToFirst: '90-180 days', netFit: 'Borrowed audiences. Excellent for the authority play. Slow to convert directly.' },
+  { key: 'cold', name: 'Cold Outbound', tag: 'You already do this for work', timeInvestment: '5-8 hrs/week', cost: '$0-$100', timeToFirst: '30-90 days', netFit: 'Skill you already have. Counter-cultural for the bridge build, but it works.' },
+  { key: 'paid', name: 'Paid Ads', tag: 'Last channel, not first', timeInvestment: '2 hrs/week + setup', cost: '$500-$5K/mo', timeToFirst: '60-120 days', netFit: 'Don\'t start here. Wait until the organic offer is validated and the funnel converts.' }
+];
+
+function updateDistro() {
+  const network = +document.getElementById('dc-network').value;
+  const write = +document.getElementById('dc-write').value;
+  const time = +document.getElementById('dc-time').value;
+  const budget = +document.getElementById('dc-budget').value;
+  document.getElementById('dc-network-v').textContent = network.toLocaleString();
+  document.getElementById('dc-write-v').textContent = write;
+  document.getElementById('dc-time-v').textContent = time;
+  document.getElementById('dc-budget-v').textContent = fmt$(budget);
+
+  const scores = {
+    linkedin: (network >= 1000 ? 30 : 10) + (write >= 5 ? 30 : 10) + (time <= 6 ? 25 : 15),
+    newsletter: (write >= 6 ? 35 : 10) + (time >= 6 ? 25 : 10) + (network >= 500 ? 15 : 5),
+    referrals: (network >= 500 ? 35 : 20) + (time <= 4 ? 30 : 15) + 10,
+    podcast: (write >= 5 ? 20 : 10) + (time >= 5 ? 25 : 10) + 10,
+    cold: (time <= 5 ? 25 : 10) + 20 + (network < 1000 ? 15 : 5),
+    paid: (budget >= 1000 ? 35 : 5) + (time <= 4 ? 20 : 10)
+  };
+  const ranked = CHANNELS.slice().sort((a, b) => scores[b.key] - scores[a.key]);
+  const html = ranked.map((c, i) => `<div class="channel-card ${i === 0 ? 'recommended' : ''}"><div class="ch-name">${c.name}${i === 0 ? ' · Start here' : ''}</div><div class="ch-tag">${c.tag}</div><div class="ch-row"><div class="k">Time</div><div class="v">${c.timeInvestment}</div></div><div class="ch-row"><div class="k">Cost</div><div class="v">${c.cost}</div></div><div class="ch-row"><div class="k">First $</div><div class="v">${c.timeToFirst}</div></div><div class="ch-row"><div class="k">Why</div><div class="v">${c.netFit}</div></div></div>`).join('');
+  document.getElementById('dc-output').innerHTML = html;
+
+  const top = ranked[0];
+  const second = ranked[1];
+  document.getElementById('dc-callout').innerHTML = `<strong>Start on ${top.name}. Add ${second.name} after 90 days.</strong> Two channels is the sweet spot — one is fragile, three splits attention. The first 90 days should be ${top.name} only, then layer the second once the first is generating buyer conversations weekly.`;
+  notifyResize();
+}
+document.querySelectorAll('#s-distro input[type=range]').forEach(el => el.addEventListener('input', updateDistro));
+
+// =====================================================
+// TAB 5: VALIDATION PLAYBOOK
+// =====================================================
+const VAL_STEPS = [
+  { title: '1. Five customer interviews (Week 1-2)', detail: '<strong>The same discovery you run on enterprise deals.</strong> Find five people who fit your buyer profile. Schedule 30 minutes each. Ask them about the problem your offer solves, what they\'ve tried, what they paid for, and what worked. Do not pitch. Listen for the same three words across all five conversations — that\'s your offer.' },
+  { title: '2. Three free beta calls (Week 2-3)', detail: '<strong>Deliver the offer in a stripped-down version for free.</strong> One hour. One specific outcome. Three different buyer profiles. The goal is to test whether your framework actually moves the needle for the buyer, not whether they\'ll pay. Capture what changed for them after the call in their words.' },
+  { title: '3. Two paid pilots at half price (Week 3-5)', detail: '<strong>Sell two real engagements at 50% of your eventual price.</strong> The discount buys you the right to ask for feedback, testimonials, and case-study material. Run the full engagement. Track time, outcomes, and what you\'d change. If both close, you have validation. If neither closes, the offer or the audience needs work.' },
+  { title: '4. Go / no-go decision (Week 5-6)', detail: '<strong>Two paid pilots is the threshold.</strong> If both pilots delivered the outcome you promised AND both clients would refer you, ship the full-price offer. If one of those is missing, revise and run another two pilots. Do not build a course, community, or product until this gate is passed.' },
+  { title: '5. Full-price launch (Week 6+)', detail: '<strong>Use the testimonials from the two pilots as your launch material.</strong> Price at your full rate. Launch on the channel from the Distribution Channel Selector. The two pilots become your proof. The interviews become your messaging. The framework becomes your offer.' }
+];
+document.getElementById('val-steps').innerHTML = VAL_STEPS.map((s, i) => `<div class="val-step"><div class="vs-num">${i + 1}</div><div><div class="vs-title">${s.title}</div><div class="vs-detail">${s.detail}</div></div></div>`).join('');
+
+// =====================================================
+// TAB 6: THREE-YEAR BUILDUP MAP
+// =====================================================
+const BUILDUP_DETAILS = {
+  '1': { title: 'Year 1 · Foundation', revenue: '$10K-$40K total', hours: '6-10 hrs/week', audience: 'Build from current network to 3K-5K on chosen channel', moves: ['<strong>Pick the offer</strong> (Tab 1: Skill → Offer Mapper)', '<strong>Validate</strong> with five interviews, three betas, two paid pilots (Tab 5)', '<strong>Launch</strong> at full price on one distribution channel (Tab 4)', '<strong>Open the LLC</strong> (Lesson 8) once revenue clears $5K', '<strong>Track</strong> revenue, conversion, and audience growth weekly'], cliffhanger: 'By the end of Year 1, you should have shipped 10-30 paid engagements, written ~150 posts, and seen the offer hold together. The validation question is answered.' },
+  '2': { title: 'Year 2 · Validation', revenue: '$50K-$120K total', hours: '8-12 hrs/week', audience: 'Grow to 8K-15K, second channel layered', moves: ['<strong>Raise prices</strong> 30-50% on the proven offer', '<strong>Add the second offer</strong> from your Skill Mapper ranking', '<strong>Layer the second distribution channel</strong> (Tab 4)', '<strong>Run Lesson 9 tax strategy</strong> — S-Corp election, Solo 401(k), CPA cadence', '<strong>Set the autopilot</strong>: publishing rhythm, sales process, fulfillment system'], cliffhanger: 'By the end of Year 2, the offer has been re-priced upward. The audience knows what you do. Repeat buyers and referrals start producing more revenue than cold outreach. The next decision is whether to scale by hours or by product.' },
+  '3': { title: 'Year 3 · Scale', revenue: '$150K-$300K total', hours: '10-15 hrs/week (flat from Y2)', audience: '15K-30K with the second channel maturing', moves: ['<strong>Ship the digital product</strong> — course, playbook, or community', '<strong>Hire your first part-time help</strong> (VA, editor, or fulfillment support)', '<strong>Run Lesson 10 architecture</strong> — Solo 401(k) maxed, Backdoor Roth, taxable brokerage feeding FINE', '<strong>Speak / podcast tour</strong> for the authority compound', '<strong>Plan the W-2 decision</strong> — at this revenue level, the W-2 becomes a choice instead of a constraint'], cliffhanger: 'By the end of Year 3, the bridge income is funding the Wealth Architecture (Lesson 10), the FINE math is tracking forward, and the W-2 has gone from primary income to optional income. This is the year the structure built in L8/L9/L10 starts paying off in real time.' }
+};
+function renderBuildup(year) {
+  const d = BUILDUP_DETAILS[year];
+  document.getElementById('buildup-detail').innerHTML = `<h3>${d.title}</h3><div class="metrics" style="margin-top:0;margin-bottom:18px;"><div class="metric hero-metric"><div class="label">Revenue range</div><div class="value">${d.revenue}</div></div><div class="metric"><div class="label">Hours per week</div><div class="value">${d.hours}</div></div><div class="metric"><div class="label">Audience</div><div class="value" style="font-size:14px;">${d.audience}</div></div></div><h4>Moves this year</h4><ul style="padding-left:18px;font-size:13.5px;line-height:1.8;color:var(--floral);">${d.moves.map(m => `<li>${m}</li>`).join('')}</ul><div class="callout" style="margin-top:14px;"><strong>End of year.</strong> ${d.cliffhanger}</div>`;
+  notifyResize();
+}
+document.querySelectorAll('.year-card').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.year-card').forEach(card => card.classList.remove('active'));
+    c.classList.add('active');
+    renderBuildup(c.dataset.year);
+  });
+});
+renderBuildup('1');
+
+// =====================================================
+// TAB 7: BRIDGE → ARCHITECTURE CONNECTOR
+// =====================================================
+let brPct = 0.70;
+
+function updateBridge() {
+  const income = +document.getElementById('br-income').value;
+  const col = +document.getElementById('br-col').value;
+  const growth = +document.getElementById('br-growth').value / 100;
+  document.getElementById('br-income-v').textContent = fmt$(income);
+  document.getElementById('br-col-v').textContent = fmt$(col);
+  document.getElementById('br-growth-v').textContent = (growth * 100).toFixed(0) + '%';
+
+  const targetAnnual = col * brPct;
+  const targetMonthly = targetAnnual / 12;
+  const pctFilled = Math.min(999, Math.round(income / targetMonthly * 100));
+
+  let months = Infinity;
+  if (income >= targetMonthly) months = -1;
+  else if (growth > 0) {
+    const need = targetMonthly / Math.max(income, 1);
+    if (need <= 1) months = 0;
+    else months = Math.log(need) / Math.log(1 + growth);
+  }
+  document.getElementById('br-pct').textContent = pctFilled + '%';
+  document.getElementById('br-target').textContent = fmt$(targetMonthly) + '/mo';
+  document.getElementById('br-months').textContent = fmtMo(months);
+
+  const annualBridge = income * 12;
+  const taxSavings = annualBridge * 0.12;
+  const soloContrib = Math.min(annualBridge * 0.25, 30000);
+  const personal = Math.max(0, annualBridge - taxSavings - soloContrib - (annualBridge * 0.18));
+
+  const flowHtml = `
+    <div class="flow-row">
+      <div class="flow-box source"><div class="fb-label">Bridge income (from L11)</div><div class="fb-name">Your monthly side revenue</div><div class="fb-amt">${fmt$(income)}/mo</div><div class="fb-detail">${fmt$(annualBridge)} annual gross</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box"><div class="fb-label">Lesson 8 LLC</div><div class="fb-name">Business expenses + deductions</div><div class="fb-amt">${fmt$(annualBridge * 0.18)}/yr</div><div class="fb-detail">Home office, software, travel, education</div></div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-box source"><div class="fb-label">After L8 deductions</div><div class="fb-name">Net into the architecture</div><div class="fb-amt">${fmt$(annualBridge * 0.82)}/yr</div><div class="fb-detail">After expense deductions</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box"><div class="fb-label">Lesson 9 tax strategy</div><div class="fb-name">S-Corp + Solo 401(k) profit-share</div><div class="fb-amt">${fmt$(soloContrib + taxSavings)}/yr</div><div class="fb-detail">Tax-deductible retirement + S-Corp savings</div></div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-box source"><div class="fb-label">Take-home after L9</div><div class="fb-name">Personal-layer overflow</div><div class="fb-amt">${fmt$(personal)}/yr</div><div class="fb-detail">Available for L10 personal accounts</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box"><div class="fb-label">Lesson 10 architecture</div><div class="fb-name">Backdoor Roth + taxable brokerage</div><div class="fb-amt">${fmt$(Math.min(personal, 7000))} + ${fmt$(Math.max(0, personal - 7000))}/yr</div><div class="fb-detail">Roth conversion + buckets + asset location</div></div>
+    </div>`;
+  document.getElementById('br-flow').innerHTML = flowHtml;
+
+  let cls = 'callout', html = '';
+  if (pctFilled >= 100) { cls = 'callout green'; html = '<strong>FINE achieved through the bridge alone.</strong> Your monthly side income covers ' + pctFilled + '% of your 70% FINE target. The W-2 is optional from a financial standpoint. Lesson 10\'s wealth architecture compounds in the background while you choose what to do with the W-2.'; }
+  else if (pctFilled >= 50) { cls = 'callout'; html = '<strong>Bridge crossing the halfway mark.</strong> ' + pctFilled + '% of FINE is filled by your current bridge income. Combined with the L10 architecture (Backdoor Roth, Solo 401(k), taxable brokerage), the gap closes faster than the side income alone would suggest. Months to FINE at current growth: ' + fmtMo(months) + '.'; }
+  else if (pctFilled >= 20) { cls = 'callout orange'; html = '<strong>Foundation phase.</strong> ' + pctFilled + '% of FINE filled. The math gets non-linear once side income compounds — at ' + (growth * 100).toFixed(0) + '% monthly growth, you double every ' + (growth > 0 ? (Math.log(2) / Math.log(1 + growth)).toFixed(0) : '—') + ' months. Focus the next 12-24 months on the bridge work in this lesson while the L10 architecture compounds in the background.'; }
+  else { cls = 'callout red'; html = '<strong>Just getting started.</strong> ' + pctFilled + '% of FINE filled. The bridge income is the lever now. Use Tabs 1-5 to pick the offer, price it, validate it, and launch it. The Wealth Architecture from Lesson 10 needs an inflow to compound — that\'s what L11 builds.'; }
+  document.getElementById('br-callout').className = cls;
+  document.getElementById('br-callout').innerHTML = html;
+  notifyResize();
+}
+document.querySelectorAll('#s-bridge input[type=range]').forEach(el => el.addEventListener('input', updateBridge));
+document.querySelectorAll('#s-bridge .toggle-row button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#s-bridge .toggle-row button').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    brPct = +btn.dataset.target / 100;
+    updateBridge();
+  });
+});
+
+// =====================================================
+// TAB 8: AI TWIN
+// =====================================================
+const STARTERS = [
+  { q: 'What should I offer first if I\'ve never sold to consumers?', a: 'Don\'t sell to consumers. <strong>Sell to other strategic sellers</strong>, or to people in adjacent enterprise roles. The skills you have (discovery, qualification, multi-thread, narrative memos) translate directly to coaching or done-with-you consulting for that audience. Your first ten buyers will look more like you than not. Start with a 1:1 coaching package — defined scope, defined outcome, $1,500-$2,500. The Skill → Offer Mapper tab walks the trade-offs across five offer types.' },
+  { q: 'How do I price my first offer when I have no comparables?', a: 'Three anchors. <strong>One:</strong> your hourly rate at the W-2 (total comp ÷ 2,000 hours). For a $400K seller, that\'s ~$200/hr. <strong>Two:</strong> the buyer\'s alternative cost (a coach, consultant, or course they\'d hire instead). <strong>Three:</strong> the outcome value. A coaching package that helps a $300K seller move into a senior closer role is worth $30K+ in lifetime earning lift. Price at 5-10% of the outcome value. For a first offer, $1,500-$2,500 is the safe range. The Pricing Architect tab ranks four pricing models against your stage.' },
+  { q: 'Should I start on LinkedIn or with a newsletter?', a: 'Start on <strong>LinkedIn</strong>. You\'re already there. Your buyers are already there. The audience already trusts the platform for professional content. The newsletter is the second move — add it once your LinkedIn audience is 3K-5K and you\'ve found your three content pillars. The newsletter compounds with the audience LinkedIn builds. The Distribution Channel Selector ranks all six channels against your specific network size and writing comfort.' },
+  { q: 'How many hours per week does this realistically take?', a: 'Six to eight hours per week, sustained. Less than that and the offer never gets validated; more than that and the W-2 quality drops. The breakdown: 3-4 hours of content (writing, posting, replying), 1-2 hours of conversations (DMs, calls, qualification), 1-2 hours of fulfillment (your first paying clients). The Revenue Modeler tab shows what hours per week produces at your inputs.' },
+  { q: 'When should I incorporate as an LLC (Lesson 8)?', a: 'Open the LLC the quarter after you cross <strong>$5,000 in side revenue</strong>. Earlier and the legal and accounting overhead outweighs the protection; later and you\'re leaving deductions and S-Corp savings on the table. Lesson 8 walks the weekend setup. The Bridge → Architecture Connector tab in this Playground shows exactly how the LLC layer interacts with your bridge income and the Lesson 10 wealth architecture.' },
+  { q: 'What\'s the biggest mistake strategic sellers make on the bridge?', a: '<strong>Building before validating.</strong> Strategic sellers love to build — courses, communities, products, websites. The mistake is building the asset before two paid pilots have proven the offer holds together. Every hour spent building before validation is an hour spent against the wrong offer. The Validation Playbook tab walks the five-interview, three-beta, two-pilot sequence that the strategic sellers I work with use. Cost: $0. Time: 4-6 weeks. Skip this step and the next six months disappear.' },
+  { q: 'How long until I should expect the first $1K?', a: 'For most strategic sellers running the validation playbook, the first $1K shows up in <strong>month 2 or month 3</strong>. The first $10K usually lands in <strong>month 6 or month 7</strong>. The first $50K (cumulative across the year) usually lands at <strong>month 10 or month 12</strong>. Those are the medians — the spread is wide based on audience size, conversion rate, and price point. The Revenue Modeler tab projects your specific timeline against your inputs.' }
+];
+
+function renderSuggested() {
+  document.getElementById('suggested').innerHTML = STARTERS.map((s, i) => `<button data-idx="${i}">${s.q}</button>`).join('');
+  document.querySelectorAll('#suggested button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = +btn.dataset.idx;
+      sendUser(STARTERS[idx].q);
+      setTimeout(() => sendTwin(STARTERS[idx].a), 350);
+    });
+  });
+}
+function sendUser(text) {
+  const m = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `<div class="msg-meta">You</div>${text}`;
+  m.appendChild(div); m.scrollTop = m.scrollHeight; notifyResize();
+}
+function sendTwin(html) {
+  const m = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg twin';
+  div.innerHTML = `<div class="msg-meta">Brandon (AI Twin)</div>${html}`;
+  m.appendChild(div); m.scrollTop = m.scrollHeight; notifyResize();
+}
+document.getElementById('chat-send').addEventListener('click', () => {
+  const input = document.getElementById('chat-input');
+  if (!input.value.trim()) return;
+  sendUser(input.value);
+  const q = input.value.toLowerCase();
+  input.value = '';
+  setTimeout(() => {
+    const match = STARTERS.find(s => q.includes(s.q.toLowerCase().split(' ').slice(0, 3).join(' ')));
+    if (match) { sendTwin(match.a); }
+    else { sendTwin('That\'s outside the scope of this sandbox. For deeper conversation, use the <strong>Open Claude</strong> button below. Or try one of the starter questions above.'); }
+  }, 400);
+});
+document.getElementById('chat-input').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') document.getElementById('chat-send').click();
+});
+renderSuggested();
+
+// =====================================================
+// AVATAR (Brandon) — base64, reused from L9/L10 (14,516 chars)
+// =====================================================
+const AVATAR_B64 = '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';
+document.getElementById('twin-avatar-img').src = 'data:image/jpeg;base64,' + AVATAR_B64;
+
+// === Initialize ===
+updateMapper();
+updateRevenue();
+updatePricing();
+updateDistro();
+updateBridge();
+setTimeout(notifyResize, 200);
+</script>
+</body>
+</html>
