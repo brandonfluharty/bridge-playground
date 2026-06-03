@@ -430,16 +430,20 @@
       <h3>Your Top 3 Skills</h3>
       <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Toggle the three skills that describe what you do best. Most strategic sellers have 2-3 active skills and 4-5 dormant ones.</p>
       <div class="toggle-row" id="skill-toggles" style="flex-direction:column;align-items:stretch;">
-        <button class="on" data-skill="enterprise-negotiation">Enterprise negotiation &amp; closing</button>
-        <button class="on" data-skill="narrative-memos">Narrative memos &amp; written deal strategy</button>
-        <button data-skill="discovery">Discovery &amp; problem framing</button>
-        <button class="on" data-skill="async-deal-flow">Async deal flow &amp; multi-thread coordination</button>
-        <button data-skill="exec-presence">Executive presence &amp; C-level conversation</button>
-        <button data-skill="forecasting">Forecasting &amp; pipeline management</button>
-        <button data-skill="positioning">Positioning &amp; competitive analysis</button>
-        <button data-skill="enablement">Sales enablement &amp; training</button>
-        <button data-skill="creative-outreach">Creative outreach</button>
         <button data-skill="account-planning">Account planning &amp; strategy</button>
+        <button data-skill="creative-outreach">Creative outreach</button>
+        <button class="on" data-skill="discovery">Discovery &amp; problem framing</button>
+        <button data-skill="positioning">Positioning &amp; competitive analysis</button>
+        <button data-skill="exec-presence">Executive presence &amp; C-level conversation</button>
+        <button data-skill="presentations">Designing impactful presentations</button>
+        <button data-skill="whiteboarding">Whiteboarding &amp; consulting</button>
+        <button class="on" data-skill="narrative-memos">Narrative memos &amp; written deal strategy</button>
+        <button class="on" data-skill="async-deal-flow">Async deal flow &amp; multi-thread coordination</button>
+        <button data-skill="forecasting">Forecasting &amp; pipeline management</button>
+        <button data-skill="enterprise-negotiation">Enterprise negotiation &amp; closing</button>
+        <button data-skill="enablement">Sales enablement &amp; training</button>
+        <button data-skill="expansion">Expansion, renewals, &amp; growth</button>
+        <button data-skill="customer-success">Customer success</button>
       </div>
       <div class="callout" style="margin-top:14px;font-size:12.5px;">
         <strong>Why three.</strong> One skill is a tactic. Three combined is a category. The intersection of your top three is what makes your offer hard to copy and easy to price above market.
@@ -778,16 +782,20 @@ window.addEventListener('resize', notifyResize);
 // TAB 1: SKILL → OFFER MAPPER
 // =====================================================
 const SKILL_LIBRARY = {
-  'enterprise-negotiation': { name: 'Enterprise negotiation & closing', weight: { coaching: 3, consulting: 3, advisory: 3, product: 1, community: 1 } },
-  'narrative-memos': { name: 'Narrative memos & written deal strategy', weight: { coaching: 2, consulting: 3, advisory: 2, product: 3, community: 2 } },
-  'discovery': { name: 'Discovery & problem framing', weight: { coaching: 3, consulting: 3, advisory: 2, product: 2, community: 2 } },
-  'async-deal-flow': { name: 'Async deal flow & multi-thread coordination', weight: { coaching: 1, consulting: 3, advisory: 3, product: 1, community: 1 } },
-  'exec-presence': { name: 'Executive presence & C-level conversation', weight: { coaching: 2, consulting: 2, advisory: 3, product: 1, community: 2 } },
-  'forecasting': { name: 'Forecasting & pipeline management', weight: { coaching: 2, consulting: 3, advisory: 2, product: 2, community: 1 } },
-  'positioning': { name: 'Positioning & competitive analysis', weight: { coaching: 2, consulting: 3, advisory: 2, product: 3, community: 2 } },
-  'enablement': { name: 'Sales enablement & training', weight: { coaching: 3, consulting: 2, advisory: 1, product: 3, community: 3 } },
+  'account-planning': { name: 'Account planning & strategy', weight: { coaching: 3, consulting: 3, advisory: 3, product: 2, community: 2 } },
   'creative-outreach': { name: 'Creative outreach', weight: { coaching: 2, consulting: 2, advisory: 1, product: 3, community: 3 } },
-  'account-planning': { name: 'Account planning & strategy', weight: { coaching: 3, consulting: 3, advisory: 3, product: 2, community: 2 } }
+  'discovery': { name: 'Discovery & problem framing', weight: { coaching: 3, consulting: 3, advisory: 2, product: 2, community: 2 } },
+  'positioning': { name: 'Positioning & competitive analysis', weight: { coaching: 2, consulting: 3, advisory: 2, product: 3, community: 2 } },
+  'exec-presence': { name: 'Executive presence & C-level conversation', weight: { coaching: 2, consulting: 2, advisory: 3, product: 1, community: 2 } },
+  'presentations': { name: 'Designing impactful presentations', weight: { coaching: 3, consulting: 2, advisory: 1, product: 3, community: 2 } },
+  'whiteboarding': { name: 'Whiteboarding & consulting', weight: { coaching: 3, consulting: 3, advisory: 2, product: 2, community: 2 } },
+  'narrative-memos': { name: 'Narrative memos & written deal strategy', weight: { coaching: 2, consulting: 3, advisory: 2, product: 3, community: 2 } },
+  'async-deal-flow': { name: 'Async deal flow & multi-thread coordination', weight: { coaching: 1, consulting: 3, advisory: 3, product: 1, community: 1 } },
+  'forecasting': { name: 'Forecasting & pipeline management', weight: { coaching: 2, consulting: 3, advisory: 2, product: 2, community: 1 } },
+  'enterprise-negotiation': { name: 'Enterprise negotiation & closing', weight: { coaching: 3, consulting: 3, advisory: 3, product: 1, community: 1 } },
+  'enablement': { name: 'Sales enablement & training', weight: { coaching: 3, consulting: 2, advisory: 1, product: 3, community: 3 } },
+  'expansion': { name: 'Expansion, renewals, & growth', weight: { coaching: 3, consulting: 3, advisory: 2, product: 2, community: 2 } },
+  'customer-success': { name: 'Customer success', weight: { coaching: 3, consulting: 3, advisory: 2, product: 2, community: 3 } }
 };
 
 const OFFER_LIBRARY = {
@@ -798,7 +806,7 @@ const OFFER_LIBRARY = {
   community: { name: 'Paid Community / Membership', detail: 'Recurring revenue from a group of practitioners learning from you and each other. Highest lifetime value but slowest to start.', speed: 'First 10 members in 60-120 days', price: '$49-$200/month per member', floor: '$3K MRR in 6 months realistic' }
 };
 
-let activeSkills = ['enterprise-negotiation', 'narrative-memos', 'async-deal-flow'];
+let activeSkills = ['discovery', 'narrative-memos', 'async-deal-flow'];
 
 function updateMapper() {
   const scores = { coaching: 0, consulting: 0, advisory: 0, product: 0, community: 0 };
